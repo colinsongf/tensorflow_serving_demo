@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>retrieve similar utterances</title>
+    <script type=text/javascript src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        var ROOT = {{request.script_root | tojson | safe}};
+
+        function ajaxForm1() {
+            $.ajax({
+                type: "POST",
+                url: ROOT,
+                dataType: "json",
+                data: $("#form1").serialize(),
+                error: function (XMLResponse) {
+                    alert(XMLResponse.responseText)
+                },
+                success: function (res) {
+                    document.getElementById('status').innerHTML=res.status;
+                    document.getElementById('path').innerHTML=res.mask_path;
+                }
+            });
+            return false;
+        }
+
+        function ajaxForm2(){
+            $.ajax({
+                type:"POST",
+                url:"/list",
+                dataType:"json",
+                data: $("#form2").serialize(),
+                error: function (XMLResponse) {
+                    alert(XMLResponse.responseText)
+                },
+                success: function (res) {
+                    var tbody = document.getElementById('tbody');
+                    $("#tbody").empty();
+                    for(var i=0; i<res.files.length;i++)
+                    {
+                        var tr = document.createElement('tr');
+                        tr.innerHTML = res.files[i];
+                        tbody.appendChild(tr);
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+</head>
+<body>
+<br>
+
+<table border="1" align="center">
+    <form id="form1" action="" method="post" onSubmit="return ajaxForm1()">
+        <tr>
+            <td><input name="image_name" type="text" placeholder="input image name" size=15/></td>
+            <td><input name="model_name" type="text" placeholder="deeplab" size=5/></td>
+            <td><input name="signature_name" type="text" placeholder="predict_image" size=9/></td>
+            <td><input type="submit" value="Predict"/></td>
+        </tr>
+    </form>
+</table>
+<br>
+
+<table border="1" align="center" width="300px">
+    <tr>
+        <th width="5%">STATUS</th>
+        <th width="50%">PATH</th>
+    </tr>
+    <tr>
+        <td id="status">--</td>
+        <td id="path">--</td>
+    </tr>
+</table>
+<br>
+
+<table border="1" align="center">
+    <form id="form2" action="" method="post" onSubmit="return ajaxForm2()">
+        <tr>
+            <td><input type="submit" value="Get files list"/></td>
+        </tr>
+    </form>
+    <tbody id="tbody"></tbody>
+</table>
+
+</body>
+</html>
+
