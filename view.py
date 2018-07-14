@@ -17,6 +17,8 @@ def index():
 
 @app.route('/list', methods=["POST", "GET"])
 def test():
+    """Note: this interface is irrelevant to TF serving, just an extra task for me.
+    """
     if request.method == "POST":
         res = TFRequest.get_list()
         return jsonify(res)

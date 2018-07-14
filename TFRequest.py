@@ -66,6 +66,7 @@ def tf_predict(image_name, request=_TFrequest, stub=_TFstub):
 
 
 def get_list():
+    """Get image list. This is irrelevant to TF serving, just an extra task for me."""
     lines = []
     for root, dirs, files in os.walk(root_dir):
         level = root.replace(root_dir, '').count(os.sep)

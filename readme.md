@@ -1,4 +1,5 @@
 这里其实是用flask包装tensorflow serving client成了一个web服务。
+部署tensorflow serving可参考博客 https://blog.csdn.net/qq_14975217/article/details/80985127
 ## 服务提供两个功能
 ### 获取待处理的图像文件列表
 Method： POST
