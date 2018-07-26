@@ -2,6 +2,7 @@ from grpc.beta import implementations
 import numpy as np
 from PIL import Image
 import os
+from flask import jsonify, render_template, make_response, send_from_directory
 
 import tensorflow as tf
 from tensorflow_serving.apis import predict_pb2
@@ -10,7 +11,11 @@ from tensorflow_serving.apis import prediction_service_pb2
 server = 'localhost:8500'
 model_name = 'deeplab'
 signature_name = 'predict_image'
-root_dir = '/home/zhangpf/sources'
+src_dir = './data/sources'
+tmp_dir = './data/results'
+dst_dir = './data/labels'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'JPG', 'PNG', 'gif', 'GIF'])
+
 
 host, port = server.split(':')
 _channel = implementations.insecure_channel(host, int(port))
@@ -29,13 +34,13 @@ def tf_predict(image_name, request=_TFrequest, stub=_TFstub):
         res: dict {'status': int, 'mask_path': str, 'height': int, 'width': int}.
             status: 0 is SUCCESS, 1 is FileNotFound, 2 is TFServerError, 3 is MaskSaveError, 4 is OtherErroe
     """
-    image_path = os.path.join(root_dir, image_name)
-    res = {'status': 4, 'mask_path': 'null', 'height': 0, 'width': 0}
+    image_path = os.path.join(src_dir, image_name)
+    res = {'status': 104, 'mask_path': 'null', 'height': 0, 'width': 0}
 
     try:
         im = np.array(Image.open(image_path))
     except IOError:
-        res['status'] = 1
+        res['status'] = 101
         return res
 
     height, width, _ = im.shape
@@ -48,7 +53,7 @@ def tf_predict(image_name, request=_TFrequest, stub=_TFstub):
         response = stub.Predict(request, 10.0)
         output = np.array(response.outputs['seg'].int64_val)
     except:
-        res['status'] = 2
+        res['status'] = 102
         return res
 
     try:
@@ -57,7 +62,7 @@ def tf_predict(image_name, request=_TFrequest, stub=_TFstub):
         mask_path = image_path.replace('sources', 'results').replace('jpg', 'png')
         mask.save(mask_path)
     except:
-        res['status'] = 3
+        res['status'] = 103
         return res
     else:
         res['status'] = 0
@@ -68,8 +73,8 @@ def tf_predict(image_name, request=_TFrequest, stub=_TFstub):
 def get_list():
     """Get image list. This is irrelevant to TF serving, just an extra task for me."""
     lines = []
-    for root, dirs, files in os.walk(root_dir):
-        level = root.replace(root_dir, '').count(os.sep)
+    for root, dirs, files in os.walk(src_dir):
+        level = root.replace(src_dir, '').count(os.sep)
         indent = '-' * 2 * level
         lines.append('{}{}/'.format(indent, os.path.basename(root)) + '\n')
         # fileSave.write('{}{}/'.format(indent, os.path.abspath(root)) + '\n')
@@ -78,3 +83,38 @@ def get_list():
             # fileSave.write('{}{}'.format(subIndent, f) + '\n')
             lines.append('{}{}'.format(sub_indent, f) + '\n')
     return {'files': lines}
+
+
+def check_format(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+def uploads(file):
+    if not check_format(file.filename):
+        return jsonify({'status': 101})
+
+    path = os.path.join(dst_dir, file.filename)
+    if os.path.exists(path):
+        return jsonify({'status': 102})
+
+    try:
+        file.save(path)
+    except:
+        return jsonify({'status': 103})
+    else:
+        return jsonify({'status': 0})
+
+
+def downloads(filename):
+    split, name = filename.strip().split('_')
+    if split == 'src':
+        path = src_dir
+    elif split == 'res':
+        path = tmp_dir
+    else:
+        return jsonify({'status': 101})
+
+    if not os.path.exists(os.path.join(path, filename)):
+        return jsonify({'status': 102})
+
+    return send_from_directory(path, filename, as_attachment=True)

@@ -25,10 +25,31 @@ root/
 ...
 ```
 
+### 下载图像
+Method: GET
+URL: /download
+参数：filename
+    
+注意：filename的格式为"src/res_abcd.zxy",比如“src_1.jpg”
+其中‘src’指示需要下载的是原图，‘res’指示需要下载的是tf model处理的结果；
+abcd.zxy为图像名，
+
+### 上传图像
+Method: POST
+
+URL: /upload
+
+参数：指定要上传的文件
+
+返回值类型：json
+
+返回值：{'status': int}
+0: success; 101: 文件格式错误； 102：文件已存在； 103：others
+
 ### 计算图像的分割结果
 Method：POST
 
-URL: /
+URL: /tf
 
 参数类型:json
 
@@ -37,5 +58,5 @@ URL: /
 返回值类型：json
 
 返回值：{'status': int, 'path': int}; 
-status: 请求服务的状态码，0 is SUCCESS, 1 is FileNotFound, 2 is TFServerError, 3 is MaskSaveError, 4 is OtherErrors; 
+status: 请求服务的状态码，0 is SUCCESS, 101 is FileNotFound, 102 is TFServerError, 103 is MaskSaveError, 104 is OtherErrors; 
 path: 分割结果的相对存储路径。
