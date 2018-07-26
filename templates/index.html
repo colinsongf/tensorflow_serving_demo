@@ -9,7 +9,7 @@
         function ajaxForm1() {
             $.ajax({
                 type: "POST",
-                url: ROOT,
+                url: "/api/predict",
                 dataType: "json",
                 data: $("#form1").serialize(),
                 error: function (XMLResponse) {
@@ -26,7 +26,7 @@
         function ajaxForm2(){
             $.ajax({
                 type:"POST",
-                url:"/list",
+                url:"/api/getlist",
                 dataType:"json",
                 data: $("#form2").serialize(),
                 error: function (XMLResponse) {
@@ -75,7 +75,7 @@
 <br>
 
 <table border="1" align="center">
-    <form method="post" action="/upload" enctype="multipart/form-data">
+    <form method="post" action="/api/upload" enctype="multipart/form-data">
         <tr>
             <td><input type="file" size="50" name="image_name"/></td>
             <td><input type="submit" value="上传" class="button-new" style="margin-top: 1px;"/></td>
