@@ -4,10 +4,12 @@
     <title>retrieve similar utterances</title>
     <script type=text/javascript src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript">
+        var ROOT = {{request.script_root | tojson | safe}};
+
         function ajaxForm1() {
             $.ajax({
                 type: "POST",
-                url: /tf,
+                url: ROOT,
                 dataType: "json",
                 data: $("#form1").serialize(),
                 error: function (XMLResponse) {

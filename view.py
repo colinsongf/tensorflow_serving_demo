@@ -4,7 +4,7 @@ from utils import tf_predict, get_list, uploads, downloads
 app = Flask(__name__)
 
 
-@app.route("/tf", methods=["POST", "GET"])
+@app.route("/", methods=["POST", "GET"])
 def tfpredict():
     if request.method == "POST":
         image_name = request.form.get("image_name", "null")
@@ -46,5 +46,5 @@ if __name__ == "__main__":
     app.run(
         host='0.0.0.0',
         port=8080,
-        debug=True
+        debug=False
     ) 
