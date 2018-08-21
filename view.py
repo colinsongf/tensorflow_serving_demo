@@ -1,8 +1,15 @@
 import os
+import time
 from flask import Flask, jsonify, request, render_template, send_from_directory
 from utils import tf_predict
 
+from gevent import monkey
+from gevent.pywsgi import WSGIServer
+monkey.patch_all()
+
 app = Flask(__name__)
+app.config.update(DEBUG=False)
+
 SRC_DIR = './data/sources'
 TMP_DIR = './data/results'
 DST_DIR = './data/labels'
@@ -85,14 +92,24 @@ def download(filename):
         return render_template("index.html")
 
 
+@app.route('/async', methods=["GET"])
+def test_async_one():
+    print("ASYN haa a request.")
+    time.sleep(10)
+    return 'hello asyn'
+
+
+@app.route('/test/', methods=['GET'])
+def tests():
+    return 'hello test'
+
+
 @app.before_first_request
 def before_first_request():
     print("init done!")
 
 
 if __name__ == "__main__":
-    app.run(
-        host='0.0.0.0',
-        port=8080,
-        debug=True
-    ) 
+    # app.run(host='0.0.0.0', port=5000, debug=True)
+    http_server = WSGIServer(('', 8080), app)
+    http_server.serve_forever()
