@@ -92,18 +92,6 @@ def download(filename):
         return render_template("index.html")
 
 
-@app.route('/async', methods=["GET"])
-def test_async_one():
-    print("ASYN haa a request.")
-    time.sleep(10)
-    return 'hello asyn'
-
-
-@app.route('/test/', methods=['GET'])
-def tests():
-    return 'hello test'
-
-
 @app.before_first_request
 def before_first_request():
     print("init done!")
